@@ -12,3 +12,112 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum Role {
+  USER
+  ORGANIZER
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+enum ActivityType {
+  EVENT_VIEWED
+  BOOKING_STARTED
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+}
+
+model User {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
+  role     Role
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  createdEvents Event[]       @relation("OrganizerEvents")
+  bookings      Booking[]
+  activityLogs  ActivityLog[]
+}
+
+model Event {
+  id String @id @default(uuid())
+
+  title       String
+  description String
+  venue       String
+
+  eventDateTime DateTime
+
+  capacity    Int
+  bookedSeats Int @default(0)
+
+  price Decimal @db.Decimal(10, 2)
+
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  organizerId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizer User @relation("OrganizerEvents", fields: [organizerId], references: [id], onDelete: Restrict)
+
+  bookings     Booking[]
+  activityLogs ActivityLog[]
+
+  @@index([title])
+  @@index([eventDateTime])
+  @@index([title, eventDateTime])
+  @@index([organizerId])
+  @@index([isDeleted])
+  @@index([isDeleted, eventDateTime])
+}
+
+model Booking {
+  id String @id @default(uuid())
+
+  userId  String
+  eventId String
+
+  status BookingStatus @default(CONFIRMED)
+
+  cancelledAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+  @@index([status])
+}
+
+model ActivityLog {
+  id String @id @default(uuid())
+
+  eventId String
+  userId  String?
+
+  action ActivityType
+
+  createdAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Restrict)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([eventId])
+  @@index([eventId, action])
+  @@index([createdAt])
+}
