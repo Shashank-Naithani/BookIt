@@ -1,15 +1,16 @@
 import { Router } from "express";
-import sendSuccessResponse from "../shared/utils/sendSuccessResponse.js";
+
+import authRoutes from "../modules/auth/auth.routes.js";
 
 const router = Router();
 
 router.get("/health", (req, res) => {
-    return sendSuccessResponse(
-        res,
-        200,
-        "SERVER_HEALTHY",
-        "Server is running"
-    );
+  return res.status(200).json({
+    success: true,
+    message: "Server is running",
+  });
 });
+
+router.use("/auth", authRoutes);
 
 export default router;

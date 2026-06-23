@@ -14,19 +14,19 @@ app.set("trust proxy", 1);
 
 app.use(helmet());
 app.use(
-    cors({
-        origin: "http://localhost:5173",
-        credentials: true,
-    })
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
 );
 app.use(loggerMiddleware);
+app.use(express.json({ limit: "10kb" }));
 app.use(
-    express.urlencoded({
-        extended: true,
-        limit: "10kb",
-    })
+  express.urlencoded({
+    extended: true,
+    limit: "10kb",
+  }),
 );
-app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Routes setup
