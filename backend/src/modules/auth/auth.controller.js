@@ -1,4 +1,5 @@
 import { registerUser, loginUser } from "./auth.service.js";
+import { findUserById } from "./auth.repository.js";
 
 import asyncHandler from "../../shared/utils/asyncHandler.js";
 import sendSuccessResponse from "../../shared/utils/sendSuccessResponse.js";
@@ -40,5 +41,19 @@ export const logout = asyncHandler(async (req, res) => {
     200,
     RESPONSE_CODES.LOGOUT_SUCCESS,
     "Logout successful",
+  );
+});
+
+export const getCurrentUser = asyncHandler(async (req, res) => {
+  const user = await findUserById(req.user.userId);
+
+  const { password, ...safeUser } = user;
+
+  return sendSuccessResponse(
+    res,
+    200,
+    "CURRENT_USER_FETCHED",
+    "Current user fetched successfully",
+    safeUser,
   );
 });
