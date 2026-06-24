@@ -12,6 +12,6 @@ router.get("/health", (req, res) => {
 });
 
 router.use("/auth", authRoutes);
-router.use("/organizer/events", eventRoutes);
+router.use("/events", eventRoutes);
 
 export default router;

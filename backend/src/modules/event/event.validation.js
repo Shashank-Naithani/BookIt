@@ -27,3 +27,13 @@ export const updateEventSchema = Joi.object({
 
   price: Joi.number().min(0),
 }).min(1);
+
+export const getEventsSchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+
+  limit: Joi.number().integer().min(1).max(100).default(10),
+
+  search: Joi.string().trim().allow(""),
+
+  date: Joi.date(),
+});

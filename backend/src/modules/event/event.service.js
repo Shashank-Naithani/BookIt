@@ -1,3 +1,4 @@
+import { ACTIVITY_TYPES } from "../../shared/constants/activityTypes.js";
 import { RESPONSE_CODES } from "../../shared/constants/responseCodes.js";
 import ApiError from "../../shared/errors/ApiError.js";
 import {
@@ -5,7 +6,11 @@ import {
   findOrganizerEvents,
   findEventById,
   updateEvent,
+  findEvents,
+  createActivityLog,
 } from "./event.repository.js";
+
+// Organizer Services
 
 export const createEventService = async (eventData, organizerId) => {
   return createEvent({
@@ -41,4 +46,42 @@ export const updateEventService = async (eventId, updateData, organizerId) => {
   }
 
   return updateEvent(eventId, updateData);
+};
+
+// User & Public Services
+export const getEventsService = async ({ page, limit, search, date }) => {
+  const skip = (page - 1) * limit;
+
+  const { events, total } = await findEvents({
+    search,
+    date,
+    skip,
+    take: limit,
+  });
+
+  return {
+    events,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
+export const getEventByIdService = async (eventId, userId = null) => {
+  const event = await findEventById(eventId);
+
+  if (!event) {
+    throw new ApiError(404, RESPONSE_CODES.EVENT_NOT_FOUND, "Event not found");
+  }
+
+  await createActivityLog({
+    eventId,
+    userId,
+    action: ACTIVITY_TYPES.EVENT_VIEWED,
+  });
+
+  return event;
 };

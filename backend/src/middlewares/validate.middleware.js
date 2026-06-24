@@ -1,8 +1,6 @@
-import ApiError from "../shared/errors/ApiError.js";
-
-const validateMiddleware = (schema) => {
+const validateMiddleware = (schema, source = "body") => {
   return (req, res, next) => {
-    const { error, value } = schema.validate(req.body, {
+    const { error, value } = schema.validate(req[source], {
       abortEarly: false,
       stripUnknown: true,
     });
@@ -18,7 +16,13 @@ const validateMiddleware = (schema) => {
       );
     }
 
-    req.body = value;
+    if (source === "body") {
+      req.body = value;
+    } else if (source === "params") {
+      req.params = value;
+    } else {
+      req.validatedQuery = value;
+    }
 
     next();
   };
