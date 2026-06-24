@@ -1,8 +1,9 @@
 import ApiError from "../shared/errors/ApiError.js";
 import { verifyToken } from "../shared/utils/jwt.js";
 import { RESPONSE_CODES } from "../shared/constants/responseCodes.js";
+import { findUserById } from "../modules/auth/auth.repository.js";
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const token = req.cookies.jwtToken;
 
   if (!token) {
@@ -14,9 +15,17 @@ const authMiddleware = (req, res, next) => {
   try {
     const decoded = verifyToken(token);
 
+    const freshUser = await findUserById(decoded.userId);
+
+    if (!freshUser) {
+      return next(
+        new ApiError(401, RESPONSE_CODES.UNAUTHORIZED, "User no longer exists"),
+      );
+    }
+
     req.user = {
-      userId: decoded.userId,
-      role: decoded.role,
+      userId: freshUser.id,
+      role: freshUser.role,
     };
 
     next();

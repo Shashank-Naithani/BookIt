@@ -1,0 +1,44 @@
+import { RESPONSE_CODES } from "../../shared/constants/responseCodes.js";
+import ApiError from "../../shared/errors/ApiError.js";
+import {
+  createEvent,
+  findOrganizerEvents,
+  findEventById,
+  updateEvent,
+} from "./event.repository.js";
+
+export const createEventService = async (eventData, organizerId) => {
+  return createEvent({
+    ...eventData,
+    organizerId,
+  });
+};
+
+export const getOrganizerEventsService = async (organizerId) => {
+  return findOrganizerEvents(organizerId);
+};
+
+export const updateEventService = async (eventId, updateData, organizerId) => {
+  const event = await findEventById(eventId);
+
+  if (!event) {
+    throw new ApiError(404, RESPONSE_CODES.EVENT_NOT_FOUND, "Event not found");
+  }
+
+  if (event.organizerId !== organizerId) {
+    throw new ApiError(403, RESPONSE_CODES.FORBIDDEN, "Access denied");
+  }
+
+  if (
+    updateData.capacity !== undefined &&
+    updateData.capacity < event.bookedSeats
+  ) {
+    throw new ApiError(
+      409,
+      RESPONSE_CODES.CAPACITY_LESS_THAN_BOOKED_SEATS,
+      "Capacity cannot be less than booked seats",
+    );
+  }
+
+  return updateEvent(eventId, updateData);
+};
