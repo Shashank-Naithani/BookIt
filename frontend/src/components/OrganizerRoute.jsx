@@ -1,9 +1,9 @@
 import { useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
 
-// Allows access only when authenticated — redirects to /login otherwise
-const ProtectedRoute = () => {
-  const { isAuthenticated, isInitializing } = useSelector((state) => state.auth);
+// Allows access only when authenticated AND the user has the ORGANIZER role
+const OrganizerRoute = () => {
+  const { isAuthenticated, user, isInitializing } = useSelector((state) => state.auth);
 
   // Show loader while auth is being initialized
   if (isInitializing) {
@@ -17,7 +17,10 @@ const ProtectedRoute = () => {
     );
   }
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (user?.role !== "ORGANIZER") return <Navigate to="/" replace />;
+
+  return <Outlet />;
 };
 
-export default ProtectedRoute;
+export default OrganizerRoute;
