@@ -17,6 +17,7 @@ import LandingPage from "./pages/LandingPage";
 import EventsPage from "./pages/EventsPage";
 import EventDetailPage from "./pages/EventDetailPage";
 import OrganizerDashboard from "./pages/OrganizerDashboard";
+import MyBookingsPage from "./pages/MyBookingsPage";
 import { useSelector } from "react-redux";
 
 // Bootstraps auth state by calling /auth/me on app load.
@@ -82,6 +83,11 @@ const App = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/events/:id" element={<EventDetailPage />} />
+
+          {/* Authenticated user pages */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/my-bookings" element={<MyBookingsPage />} />
+          </Route>
 
           {/* Organizer-only pages */}
           <Route element={<OrganizerRoute />}>

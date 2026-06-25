@@ -121,3 +121,14 @@ export const createActivityLog = async (data) => {
     data,
   });
 };
+
+export const deleteEventById = async (eventId) => {
+  return prisma.event.update({
+    where: {
+      id: eventId,
+    },
+    data: {
+      isDeleted: true,
+    },
+  });
+};

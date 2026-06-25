@@ -5,6 +5,7 @@ import {
   getEvents,
   getOrganizerEvents,
   updateEvent,
+  deleteEvent,
 } from "./event.controller.js";
 import authMiddleware from "../../middlewares/auth.middleware.js";
 import authorize from "../../middlewares/authorize.middleware.js";
@@ -41,6 +42,14 @@ router.patch(
   authorize(ROLES.ORGANIZER),
   validateMiddleware(updateEventSchema),
   updateEvent,
+);
+
+router.delete(
+  "/organizer/:id",
+  authMiddleware,
+  authorize(ROLES.ORGANIZER),
+  validateMiddleware(eventIdSchema, "params"),
+  deleteEvent,
 );
 
 router.get("/", validateMiddleware(getEventsSchema, "query"), getEvents);

@@ -24,3 +24,8 @@ export const updateEvent = async ({ id, ...data }) => {
   const response = await axiosClient.patch(`/events/organizer/${id}`, data);
   return response.data;
 };
+
+export const deleteEvent = async (id) => {
+  const response = await axiosClient.delete(`/events/organizer/${id}`);
+  return response.data;
+};

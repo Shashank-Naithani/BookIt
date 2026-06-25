@@ -56,6 +56,7 @@ export const findBookingsByUser = async (userId, status, db = prisma) => {
           venue: true,
           eventDateTime: true,
           price: true,
+          isDeleted: true,
         },
       },
     },
@@ -94,6 +95,19 @@ export const releaseSeat = async (eventId, db = prisma) => {
       bookedSeats: {
         decrement: 1,
       },
+    },
+  });
+};
+
+export const cancelAllBookingsForEvent = async (eventId, db = prisma) => {
+  return db.booking.updateMany({
+    where: {
+      eventId,
+      status: BOOKING_STATUS.CONFIRMED,
+    },
+    data: {
+      status: BOOKING_STATUS.CANCELLED,
+      cancelledAt: new Date(),
     },
   });
 };

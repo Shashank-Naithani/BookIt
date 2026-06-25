@@ -8,6 +8,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const isOrganizer = user?.role === "ORGANIZER";
+  const isUser = user?.role === "USER";
 
   return (
     <header className="sticky top-0 z-50 w-full bg-surface-base/90 backdrop-blur-sm border-b border-border-light shadow-sm">
@@ -55,6 +56,15 @@ const Navbar = () => {
               className="px-3 py-2 rounded-lg text-sm font-medium text-text-body hover:bg-surface-muted hover:text-text-heading transition-colors"
             >
               My Events
+            </Link>
+          )}
+          {isUser && (
+            <Link
+              to="/my-bookings"
+              id="nav-my-bookings"
+              className="px-3 py-2 rounded-lg text-sm font-medium text-text-body hover:bg-surface-muted hover:text-text-heading transition-colors"
+            >
+              My Bookings
             </Link>
           )}
         </div>

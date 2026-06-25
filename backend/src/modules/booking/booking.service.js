@@ -7,6 +7,9 @@ import {
   findBookingByUserAndEvent,
   findBookingsByUser,
   reserveSeat,
+  findBookingById,
+  cancelBooking,
+  releaseSeat,
 } from "./booking.repository.js";
 import { findEventById, createActivityLog } from "../event/event.repository.js";
 import { Prisma } from "@prisma/client";

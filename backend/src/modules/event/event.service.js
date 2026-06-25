@@ -8,7 +8,9 @@ import {
   updateEvent,
   findEvents,
   createActivityLog,
+  deleteEventById,
 } from "./event.repository.js";
+import { cancelAllBookingsForEvent } from "../booking/booking.repository.js";
 
 // Organizer Services
 
@@ -46,6 +48,23 @@ export const updateEventService = async (eventId, updateData, organizerId) => {
   }
 
   return updateEvent(eventId, updateData);
+};
+
+export const deleteEventService = async (eventId, organizerId) => {
+  const event = await findEventById(eventId);
+
+  if (!event) {
+    throw new ApiError(404, RESPONSE_CODES.EVENT_NOT_FOUND, "Event not found");
+  }
+
+  if (event.organizerId !== organizerId) {
+    throw new ApiError(403, RESPONSE_CODES.FORBIDDEN, "Access denied");
+  }
+
+  await deleteEventById(eventId);
+  await cancelAllBookingsForEvent(eventId);
+  
+  return;
 };
 
 // User & Public Services

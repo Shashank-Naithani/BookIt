@@ -7,6 +7,7 @@ import {
   updateEventService,
   getEventsService,
   getEventByIdService,
+  deleteEventService,
 } from "./event.service.js";
 
 export const createEvent = asyncHandler(async (req, res) => {
@@ -46,6 +47,17 @@ export const updateEvent = asyncHandler(async (req, res) => {
     RESPONSE_CODES.EVENT_UPDATED,
     "Event updated successfully",
     event,
+  );
+});
+
+export const deleteEvent = asyncHandler(async (req, res) => {
+  await deleteEventService(req.params.id, req.user.userId);
+
+  return sendSuccessResponse(
+    res,
+    200,
+    RESPONSE_CODES.EVENT_DELETED,
+    "Event deleted successfully",
   );
 });
 

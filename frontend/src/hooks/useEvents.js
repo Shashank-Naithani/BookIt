@@ -5,6 +5,7 @@ import {
   getEvents,
   getOrganizerEvents,
   updateEvent,
+  deleteEvent,
 } from "../services/event.service";
 
 // ─── Query Keys ─────────────────────────────────────────────────────────────
@@ -72,6 +73,18 @@ export const useUpdateEvent = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.organizer() });
       queryClient.invalidateQueries({ queryKey: eventKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: eventKeys.lists() });
+    },
+  });
+};
+
+export const useDeleteEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: eventKeys.organizer() });
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() });
     },
   });

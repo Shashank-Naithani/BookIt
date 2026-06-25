@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createBooking, getMyBookings } from "./booking.controller.js";
+import { createBooking, getMyBookings, cancelBooking } from "./booking.controller.js";
 import {
   bookingIdSchema,
   createBookingSchema,
@@ -9,7 +9,6 @@ import authMiddleware from "../../middlewares/auth.middleware.js";
 import authorize from "../../middlewares/authorize.middleware.js";
 import validateMiddleware from "../../middlewares/validate.middleware.js";
 import { ROLES } from "../../shared/constants/roles.js";
-import { cancelBooking } from "./booking.repository.js";
 
 const router = Router();
 

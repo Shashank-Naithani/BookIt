@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useOrganizerEvents, useCreateEvent, useUpdateEvent } from "../hooks/useEvents";
+import { useOrganizerEvents, useCreateEvent, useUpdateEvent, useDeleteEvent } from "../hooks/useEvents";
 import Spinner from "../components/Spinner";
 import EmptyState from "../components/EmptyState";
 
@@ -266,9 +266,16 @@ const EventFormModal = ({ mode, event, onClose }) => {
 // ─── Organizer Event Row ──────────────────────────────────────────────────────
 
 const OrganizerEventRow = ({ event, onEdit }) => {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const { mutate: deleteEvent, isPending: isDeleting } = useDeleteEvent();
+
   const available = event.capacity - event.bookedSeats;
   const isSoldOut = available === 0;
   const pct = Math.round((event.bookedSeats / event.capacity) * 100);
+
+  const handleDelete = () => {
+    deleteEvent(event.id);
+  };
 
   return (
     <div className="bg-surface-base rounded-xl border border-border-light p-5 flex flex-col sm:flex-row sm:items-center gap-4">
@@ -296,17 +303,48 @@ const OrganizerEventRow = ({ event, onEdit }) => {
         </div>
       </div>
 
-      {/* Edit button */}
-      <button
-        id={`edit-event-${event.id}`}
-        onClick={() => onEdit(event)}
-        className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border-base text-text-body text-sm font-medium hover:bg-surface-muted transition-colors shrink-0"
-      >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-        </svg>
-        Edit
-      </button>
+      {/* Actions */}
+      <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
+        {confirmDelete ? (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setConfirmDelete(false)}
+              className="px-3 py-2 rounded-lg border border-border-base text-text-body text-sm font-medium hover:bg-surface-muted transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-danger-600 hover:bg-danger-600/90 text-text-inverse text-sm font-medium transition-colors disabled:opacity-60"
+            >
+              {isDeleting ? <Spinner size="sm" /> : "Delete"}
+            </button>
+          </div>
+        ) : (
+          <>
+            <button
+              id={`edit-event-${event.id}`}
+              onClick={() => onEdit(event)}
+              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-border-base text-text-body text-sm font-medium hover:bg-surface-muted transition-colors w-full sm:w-auto"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Edit
+            </button>
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border border-danger-600/30 text-danger-600 text-sm font-medium hover:bg-danger-50 transition-colors w-full sm:w-auto"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 };
