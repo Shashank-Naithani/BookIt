@@ -52,4 +52,5 @@ router.get(
   getEventById,
 );
 // router.get("/:id", optionalAuth, getEventById);
+
 export default router;

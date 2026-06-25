@@ -1,6 +1,7 @@
 import { Router } from "express";
 import authRoutes from "../modules/auth/auth.routes.js";
 import eventRoutes from "../modules/event/event.routes.js";
+import bookingRoutes from "../modules/booking/booking.routes.js";
 
 const router = Router();
 
@@ -13,5 +14,6 @@ router.get("/health", (req, res) => {
 
 router.use("/auth", authRoutes);
 router.use("/events", eventRoutes);
+router.use("/bookings", bookingRoutes);
 
 export default router;

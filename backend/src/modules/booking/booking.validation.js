@@ -7,3 +7,17 @@ export const createBookingSchema = Joi.object({
     })
     .required(),
 });
+
+export const getMyBookingsSchema = Joi.object({
+  status: Joi.string()
+    .valid("CONFIRMED", "CANCELLED", "ALL")
+    .default("CONFIRMED"),
+});
+
+export const bookingIdSchema = Joi.object({
+  id: Joi.string()
+    .guid({
+      version: ["uuidv4", "uuidv5"],
+    })
+    .required(),
+});

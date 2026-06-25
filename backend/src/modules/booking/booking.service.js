@@ -5,10 +5,12 @@ import { ACTIVITY_TYPES } from "../../shared/constants/activityTypes.js";
 import {
   createBooking,
   findBookingByUserAndEvent,
+  findBookingsByUser,
   reserveSeat,
 } from "./booking.repository.js";
 import { findEventById, createActivityLog } from "../event/event.repository.js";
 import { Prisma } from "@prisma/client";
+import { BOOKING_STATUS } from "../../shared/constants/bookingStatus.js";
 
 export const createBookingService = async (userId, eventId) => {
   try {
@@ -40,7 +42,10 @@ export const createBookingService = async (userId, eventId) => {
         tx,
       );
 
-      if (existingBooking && existingBooking.status === "CONFIRMED") {
+      if (
+        existingBooking &&
+        existingBooking.status === BOOKING_STATUS.CONFIRMED
+      ) {
         throw new ApiError(
           409,
           RESPONSE_CODES.BOOKING_ALREADY_EXISTS,
@@ -94,4 +99,57 @@ export const createBookingService = async (userId, eventId) => {
 
     throw error;
   }
+};
+
+export const getMyBookingsService = async (userId, status) => {
+  return findBookingsByUser(userId, status);
+};
+
+export const cancelBookingService = async (bookingId, userId) => {
+  return prisma.$transaction(async (tx) => {
+    const booking = await findBookingById(bookingId, tx);
+
+    if (!booking) {
+      throw new ApiError(
+        404,
+        RESPONSE_CODES.BOOKING_NOT_FOUND,
+        "Booking not found",
+      );
+    }
+
+    if (booking.userId !== userId) {
+      throw new ApiError(403, RESPONSE_CODES.FORBIDDEN, "Access denied");
+    }
+
+    if (booking.status === "CANCELLED") {
+      throw new ApiError(
+        409,
+        RESPONSE_CODES.BOOKING_ALREADY_CANCELLED,
+        "Booking already cancelled",
+      );
+    }
+
+    const event = await findEventById(booking.eventId, tx);
+
+    if (event && event.eventDateTime <= new Date()) {
+      throw new ApiError(
+        400,
+        RESPONSE_CODES.EVENT_ALREADY_STARTED,
+        "Booking cannot be cancelled after the event has started",
+      );
+    }
+
+    await cancelBooking(bookingId, tx);
+
+    await releaseSeat(booking.eventId, tx);
+
+    await createActivityLog(
+      {
+        eventId: booking.eventId,
+        userId,
+        action: ACTIVITY_TYPES.BOOKING_CANCELLED,
+      },
+      tx,
+    );
+  });
 };
