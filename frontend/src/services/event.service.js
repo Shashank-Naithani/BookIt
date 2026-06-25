@@ -29,3 +29,14 @@ export const deleteEvent = async (id) => {
   const response = await axiosClient.delete(`/events/organizer/${id}`);
   return response.data;
 };
+
+export const getEventAnalytics = async (eventId) => {
+  const response = await axiosClient.get(`/events/organizer/${eventId}/analytics`);
+  return response.data;
+};
+
+export const getEventAttendees = async (eventId) => {
+  const response = await axiosClient.get(`/events/organizer/${eventId}/attendees`);
+  return response.data;
+};
+

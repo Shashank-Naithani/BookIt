@@ -18,8 +18,18 @@ export const findBookingByUserAndEvent = async (
 };
 
 export const createBooking = async (bookingData, db = prisma) => {
-  return db.booking.create({
-    data: bookingData,
+  return db.booking.upsert({
+    where: {
+      userId_eventId: {
+        userId: bookingData.userId,
+        eventId: bookingData.eventId,
+      },
+    },
+    update: {
+      status: BOOKING_STATUS.CONFIRMED,
+      cancelledAt: null,
+    },
+    create: bookingData,
   });
 };
 
@@ -108,6 +118,18 @@ export const cancelAllBookingsForEvent = async (eventId, db = prisma) => {
     data: {
       status: BOOKING_STATUS.CANCELLED,
       cancelledAt: new Date(),
+    },
+  });
+};
+
+export const getBookingAnalytics = async (eventId, db = prisma) => {
+  return db.booking.groupBy({
+    by: ["status"],
+    where: {
+      eventId,
+    },
+    _count: {
+      status: true,
     },
   });
 };

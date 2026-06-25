@@ -9,8 +9,13 @@ import {
   findEvents,
   createActivityLog,
   deleteEventById,
+  findAttendeesByEvent,
+  getEventViewsCount,
 } from "./event.repository.js";
-import { cancelAllBookingsForEvent } from "../booking/booking.repository.js";
+import {
+  cancelAllBookingsForEvent,
+  getBookingAnalytics,
+} from "../booking/booking.repository.js";
 
 // Organizer Services
 
@@ -63,7 +68,7 @@ export const deleteEventService = async (eventId, organizerId) => {
 
   await deleteEventById(eventId);
   await cancelAllBookingsForEvent(eventId);
-  
+
   return;
 };
 
@@ -119,4 +124,86 @@ export const getEventByIdService = async (eventId, userId = null) => {
   });
 
   return event;
+};
+
+export const getEventAttendeesService = async (eventId, organizerId) => {
+  const event = await findEventById(eventId);
+
+  if (!event) {
+    throw new ApiError(404, RESPONSE_CODES.EVENT_NOT_FOUND, "Event not found");
+  }
+
+  if (event.organizerId !== organizerId) {
+    throw new ApiError(403, RESPONSE_CODES.FORBIDDEN, "Access denied");
+  }
+
+  const attendees = await findAttendeesByEvent(eventId);
+
+  return {
+    event: {
+      id: event.id,
+      title: event.title,
+    },
+    totalAttendees: attendees.length,
+    attendees: attendees.map((booking) => ({
+      bookingId: booking.id,
+      bookedAt: booking.createdAt,
+      ...booking.user,
+    })),
+  };
+};
+
+export const getEventAnalyticsService = async (eventId, organizerId) => {
+  const event = await findEventById(eventId);
+
+  if (!event) {
+    throw new ApiError(404, RESPONSE_CODES.EVENT_NOT_FOUND, "Event not found");
+  }
+
+  if (event.organizerId !== organizerId) {
+    throw new ApiError(403, RESPONSE_CODES.FORBIDDEN, "Access denied");
+  }
+
+  const [bookingAnalytics, totalViews] = await Promise.all([
+    getBookingAnalytics(eventId),
+    getEventViewsCount(eventId),
+  ]);
+
+  let confirmedBookings = 0;
+  let cancelledBookings = 0;
+
+  for (const item of bookingAnalytics) {
+    if (item.status === "CONFIRMED") {
+      confirmedBookings = item._count.status;
+    }
+
+    if (item.status === "CANCELLED") {
+      cancelledBookings = item._count.status;
+    }
+  }
+
+  const availableSeats = event.capacity - event.bookedSeats;
+
+  const occupancyRate =
+    event.capacity === 0
+      ? 0
+      : Number(((event.bookedSeats / event.capacity) * 100).toFixed(2));
+
+  const revenue = Number(event.price) * event.bookedSeats;
+
+  return {
+    event: {
+      id: event.id,
+      title: event.title,
+    },
+
+    analytics: {
+      totalViews,
+      confirmedBookings,
+      cancelledBookings,
+      availableSeats,
+      occupancyRate,
+      revenue,
+    },
+  };
 };

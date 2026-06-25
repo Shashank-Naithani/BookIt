@@ -6,6 +6,8 @@ import {
   getOrganizerEvents,
   updateEvent,
   deleteEvent,
+  getEventAnalytics,
+  getEventAttendees,
 } from "../services/event.service";
 
 // ─── Query Keys ─────────────────────────────────────────────────────────────
@@ -15,6 +17,8 @@ export const eventKeys = {
   list: (params) => [...eventKeys.lists(), params],
   detail: (id) => [...eventKeys.all, "detail", id],
   organizer: () => [...eventKeys.all, "organizer"],
+  analytics: (id) => [...eventKeys.all, "analytics", id],
+  attendees: (id) => [...eventKeys.all, "attendees", id],
 };
 
 // ─── Public Queries ──────────────────────────────────────────────────────────
@@ -72,7 +76,9 @@ export const useUpdateEvent = () => {
     mutationFn: updateEvent,
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.organizer() });
-      queryClient.invalidateQueries({ queryKey: eventKeys.detail(variables.id) });
+      queryClient.invalidateQueries({
+        queryKey: eventKeys.detail(variables.id),
+      });
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() });
     },
   });
@@ -87,5 +93,25 @@ export const useDeleteEvent = () => {
       queryClient.invalidateQueries({ queryKey: eventKeys.organizer() });
       queryClient.invalidateQueries({ queryKey: eventKeys.lists() });
     },
+  });
+};
+
+// ─── Organizer Analytics & Attendees ─────────────────────────────────────────
+
+export const useEventAnalytics = (eventId) => {
+  return useQuery({
+    queryKey: eventKeys.analytics(eventId),
+    queryFn: () => getEventAnalytics(eventId),
+    enabled: !!eventId,
+    staleTime: 1000 * 60, // 1 minute
+  });
+};
+
+export const useEventAttendees = (eventId) => {
+  return useQuery({
+    queryKey: eventKeys.attendees(eventId),
+    queryFn: () => getEventAttendees(eventId),
+    enabled: !!eventId,
+    staleTime: 1000 * 60, // 1 minute
   });
 };

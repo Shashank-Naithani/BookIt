@@ -6,6 +6,8 @@ import {
   getOrganizerEvents,
   updateEvent,
   deleteEvent,
+  getEventAttendees,
+  getEventAnalytics,
 } from "./event.controller.js";
 import authMiddleware from "../../middlewares/auth.middleware.js";
 import authorize from "../../middlewares/authorize.middleware.js";
@@ -61,5 +63,21 @@ router.get(
   getEventById,
 );
 // router.get("/:id", optionalAuth, getEventById);
+
+router.get(
+  "/organizer/:id/attendees",
+  authMiddleware,
+  authorize(ROLES.ORGANIZER),
+  validateMiddleware(eventIdSchema, "params"),
+  getEventAttendees,
+);
+
+router.get(
+  "/organizer/:id/analytics",
+  authMiddleware,
+  authorize(ROLES.ORGANIZER),
+  validateMiddleware(eventIdSchema, "params"),
+  getEventAnalytics,
+);
 
 export default router;

@@ -1,4 +1,5 @@
 import prisma from "../../config/db.js";
+import { ACTIVITY_TYPES } from "../../shared/constants/activityTypes.js";
 
 export const createEvent = async (eventData, db = prisma) => {
   return db.event.create({
@@ -129,6 +130,39 @@ export const deleteEventById = async (eventId) => {
     },
     data: {
       isDeleted: true,
+    },
+  });
+};
+
+export const findAttendeesByEvent = async (eventId, db = prisma) => {
+  return db.booking.findMany({
+    where: {
+      eventId,
+      status: "CONFIRMED",
+    },
+    select: {
+      id: true,
+      createdAt: true,
+
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+};
+
+export const getEventViewsCount = async (eventId, db = prisma) => {
+  return db.activityLog.count({
+    where: {
+      eventId,
+      action: ACTIVITY_TYPES.EVENT_VIEWED,
     },
   });
 };

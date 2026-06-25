@@ -65,7 +65,7 @@ const BookingCard = ({ event }) => {
 
   const [confirmCancel, setConfirmCancel] = useState(false);
 
-  const { mutate: book, isPending: isBooking, error: bookingError, isSuccess: isBooked } = useCreateBooking();
+  const { mutate: book, isPending: isBooking, error: bookingError, isSuccess: isBooked, reset: resetBook } = useCreateBooking();
   const { mutate: cancel, isPending: isCancelling } = useCancelBooking();
 
   // Fetch user's existing bookings to detect if this event is already booked
@@ -141,7 +141,10 @@ const BookingCard = ({ event }) => {
                 id="confirm-cancel-btn"
                 onClick={() =>
                   cancel(existingBooking.id, {
-                    onSuccess: () => setConfirmCancel(false),
+                    onSuccess: () => {
+                      setConfirmCancel(false);
+                      resetBook();
+                    },
                   })
                 }
                 disabled={isCancelling}

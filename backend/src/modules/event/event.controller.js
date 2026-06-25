@@ -8,6 +8,8 @@ import {
   getEventsService,
   getEventByIdService,
   deleteEventService,
+  getEventAttendeesService,
+  getEventAnalyticsService,
 } from "./event.service.js";
 
 export const createEvent = asyncHandler(async (req, res) => {
@@ -96,3 +98,30 @@ export const getEventById = asyncHandler(async (req, res) => {
 //     event,
 //   );
 // });
+
+export const getEventAttendees = asyncHandler(async (req, res) => {
+  const data = await getEventAttendeesService(req.params.id, req.user.userId);
+
+  return sendSuccessResponse(
+    res,
+    200,
+    RESPONSE_CODES.ATTENDEES_FETCHED,
+    "Attendees fetched successfully",
+    data,
+  );
+});
+
+export const getEventAnalytics = asyncHandler(async (req, res) => {
+  const analytics = await getEventAnalyticsService(
+    req.params.id,
+    req.user.userId,
+  );
+
+  return sendSuccessResponse(
+    res,
+    200,
+    RESPONSE_CODES.ANALYTICS_FETCHED,
+    "Analytics fetched successfully",
+    analytics,
+  );
+});
