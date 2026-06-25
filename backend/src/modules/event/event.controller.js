@@ -72,3 +72,15 @@ export const getEventById = asyncHandler(async (req, res) => {
     event,
   );
 });
+
+// export const getEventById = asyncHandler(async (req, res) => {
+//   const event = await getEventByIdService(req.params.id, req.user?.userId);
+
+//   return sendSuccessResponse(
+//     res,
+//     200,
+//     RESPONSE_CODES.EVENT_FETCHED,
+//     "Event fetched successfully",
+//     event,
+//   );
+// });

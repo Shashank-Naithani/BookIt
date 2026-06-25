@@ -12,6 +12,7 @@ import validateMiddleware from "../../middlewares/validate.middleware.js";
 import { ROLES } from "../../shared/constants/roles.js";
 import {
   createEventSchema,
+  eventIdSchema,
   getEventsSchema,
   updateEventSchema,
 } from "./event.validation.js";
@@ -44,5 +45,11 @@ router.patch(
 
 router.get("/", validateMiddleware(getEventsSchema, "query"), getEvents);
 
-router.get("/:id", optionalAuth, getEventById);
+router.get(
+  "/:id",
+  optionalAuth,
+  validateMiddleware(eventIdSchema, "params"),
+  getEventById,
+);
+// router.get("/:id", optionalAuth, getEventById);
 export default router;

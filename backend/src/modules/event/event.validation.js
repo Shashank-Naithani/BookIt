@@ -37,3 +37,11 @@ export const getEventsSchema = Joi.object({
 
   date: Joi.date(),
 });
+
+export const eventIdSchema = Joi.object({
+  id: Joi.string()
+    .guid({
+      version: ["uuidv4", "uuidv5"],
+    })
+    .required(),
+});

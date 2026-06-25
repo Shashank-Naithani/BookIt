@@ -18,11 +18,28 @@ export const findOrganizerEvents = async (organizerId) => {
   });
 };
 
+// export const findEventById = async (eventId) => {
+//   return prisma.event.findFirst({
+//     where: {
+//       id: eventId,
+//       isDeleted: false,
+//     },
+//   });
+// };
+
 export const findEventById = async (eventId) => {
   return prisma.event.findFirst({
     where: {
       id: eventId,
       isDeleted: false,
+    },
+    include: {
+      organizer: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   });
 };

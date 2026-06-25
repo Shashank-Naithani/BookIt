@@ -70,6 +70,22 @@ export const getEventsService = async ({ page, limit, search, date }) => {
   };
 };
 
+// export const getEventByIdService = async (eventId, userId = null) => {
+//   const event = await findEventById(eventId);
+
+//   if (!event) {
+//     throw new ApiError(404, RESPONSE_CODES.EVENT_NOT_FOUND, "Event not found");
+//   }
+
+//   await createActivityLog({
+//     eventId,
+//     userId,
+//     action: ACTIVITY_TYPES.EVENT_VIEWED,
+//   });
+
+//   return event;
+// };
+
 export const getEventByIdService = async (eventId, userId = null) => {
   const event = await findEventById(eventId);
 
@@ -78,7 +94,7 @@ export const getEventByIdService = async (eventId, userId = null) => {
   }
 
   await createActivityLog({
-    eventId,
+    eventId: event.id,
     userId,
     action: ACTIVITY_TYPES.EVENT_VIEWED,
   });

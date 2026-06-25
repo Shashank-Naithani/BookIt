@@ -1,3 +1,5 @@
+import ApiError from "../shared/errors/ApiError.js";
+
 const validateMiddleware = (schema, source = "body") => {
   return (req, res, next) => {
     const { error, value } = schema.validate(req[source], {
