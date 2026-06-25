@@ -1,7 +1,7 @@
 import prisma from "../../config/db.js";
 
-export const createEvent = async (eventData) => {
-  return prisma.event.create({
+export const createEvent = async (eventData, db = prisma) => {
+  return db.event.create({
     data: eventData,
   });
 };
@@ -27,8 +27,8 @@ export const findOrganizerEvents = async (organizerId) => {
 //   });
 // };
 
-export const findEventById = async (eventId) => {
-  return prisma.event.findFirst({
+export const findEventById = async (eventId, db = prisma) => {
+  return db.event.findFirst({
     where: {
       id: eventId,
       isDeleted: false,
@@ -101,6 +101,19 @@ export const findEvents = async ({ search, date, skip, take }) => {
     events,
     total,
   };
+};
+
+export const incrementBookedSeats = async (eventId, db = prisma) => {
+  return db.event.update({
+    where: {
+      id: eventId,
+    },
+    data: {
+      bookedSeats: {
+        increment: 1,
+      },
+    },
+  });
 };
 
 export const createActivityLog = async (data) => {
